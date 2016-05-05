@@ -59,7 +59,6 @@ float gear_ratio[1];
 int encoder_on_motor_shaft[1];
 float wheel_radius[1];         // [m]
 float meters_per_counts;       // [m/counts]
-int pwm_range[1];
 
 
 int encoder_rate[1];   // [Hz]
@@ -140,10 +139,6 @@ void setup()
   if (!nh.getParam("wheel_radius", wheel_radius,1))
   {
     wheel_radius[0] = 0.120/2.0;
-  }
-  if (!nh.getParam("pwm_range", pwm_range,1))
-  {
-    pwm_range[0] = 255;
   }
 
   // Compute the meters per count
