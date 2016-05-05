@@ -74,9 +74,14 @@ ros::NodeHandle_<ArduinoHardware, 10, 10, 1024, 1024> nh;
 
 // ROS subribers/service callbacks prototye
 void cmdDiffVelCallback(const ros_arduino_msgs::CmdDiffVel& diff_vel_msg); 
-
 // ROS subsribers
 ros::Subscriber<ros_arduino_msgs::CmdDiffVel> sub_diff_vel("cmd_diff_vel", cmdDiffVelCallback);
+
+// ROS services prototype
+void updateGainsCb(const ros_arduino_base::UpdateGains::Request &req, ros_arduino_base::UpdateGains::Response &res);
+// ROS services
+ros::ServiceServer<ros_arduino_base::UpdateGains::Request, ros_arduino_base::UpdateGains::Response> update_gains_server("update_gains", &updateGainsCb);
+
 
 // ROS publishers msgs
 ros_arduino_msgs::Encoders encoders_msg;
@@ -174,4 +179,9 @@ void cmdDiffVelCallback( const ros_arduino_msgs::CmdDiffVel& diff_vel_msg)
   ctrler.SetVelocity(NovaStepperCtrler::MOTOR_R, diff_vel_msg.right);  
   
   last_cmd_time = millis();
+}
+
+void updateGainsCb(const ros_arduino_base::UpdateGains::Request & req, ros_arduino_base::UpdateGains::Response & res)
+{
+  // NOTHING for NONE PID
 }
