@@ -1,4 +1,3 @@
-
 /*
  Copyright (c) 2013-2015, Tony Baltovski 
  Copyright (c) 2016, He Bin
@@ -32,16 +31,22 @@
 
 #include <ros.h>
 #include <ros/time.h>
+#include <ros_arduino_base/UpdateGains.h>
 #include <ros_arduino_msgs/Encoders.h>
 #include <ros_arduino_msgs/CmdDiffVel.h>
+
+#include <NovaStepperCtrler.h>
 
 /********************************************************************************************
 /                                                     USER CONFIG                           *
 /********************************************************************************************/
 
+// Select your baud rate here
+#define BAUD 115200
+
 // Define motor dir pins here
-#define LEFT_DIR_PIN  = D3
-#define RIGHT_DIR_PIN = D2
+#define LEFT_DIR_PIN  3
+#define RIGHT_DIR_PIN 2
 
 /********************************************************************************************
 /                                                 END OF USER CONFIG                        *
@@ -70,7 +75,8 @@ NovaStepperCtrler ctrler(LEFT_DIR_PIN, RIGHT_DIR_PIN);
 
 
 // ROS node
-ros::NodeHandle_<ArduinoHardware, 10, 10, 1024, 1024> nh;
+//ros::NodeHandle_<ArduinoHardware, 10, 10, 1024, 1024> nh;
+ros::NodeHandle nh;
 
 // ROS subribers/service callbacks prototye
 void cmdDiffVelCallback(const ros_arduino_msgs::CmdDiffVel& diff_vel_msg); 
