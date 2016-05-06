@@ -6,3 +6,4 @@ git clone https://github.com/tonybaltovski/PololuMC33926MotorDriver.git
 wget http://www.pjrc.com/teensy/arduino_libraries/Encoder.zip
 unzip Encoder.zip
 rm Encoder.zip
+git clone https://github.com/BigBro2014/NovaStepperCtrler.git
