@@ -44,9 +44,13 @@
 // Select your baud rate here
 #define BAUD 115200
 
-// Define motor dir pins here
-#define LEFT_DIR_PIN  3
-#define RIGHT_DIR_PIN 2
+
+// Connect motors:
+#define LEFT_CLK_PIN  2
+#define RIGHT_CLK_PIN 3
+#define LEFT_DIR_PIN  4
+#define RIGHT_DIR_PIN 5
+
 
 /********************************************************************************************
 /                                                 END OF USER CONFIG                        *
@@ -55,10 +59,7 @@
 
 // Vehicle characteristics
 float counts_per_rev[1];
-float gear_ratio[1];
-int encoder_on_motor_shaft[1];
 float wheel_radius[1];         // [m]
-float meters_per_counts;       // [m/counts]
 
 
 int encoder_rate[1];   // [Hz]
@@ -70,7 +71,7 @@ uint32_t last_encoders_time;  // [milliseconds]
 uint32_t last_cmd_time;       // [milliseconds]
 
 
-NovaStepperCtrler ctrler(LEFT_DIR_PIN, RIGHT_DIR_PIN);
+NovaStepperCtrler ctrler;
 
 
 // ROS node
@@ -119,6 +120,7 @@ void setup()
   {
     encoder_rate[0] = 50;
   }
+  
   if (!nh.getParam("no_cmd_timeout", no_cmd_timeout,1))
   {
     no_cmd_timeout[0] = 1;
@@ -126,39 +128,24 @@ void setup()
 
   if (!nh.getParam("counts_per_rev", counts_per_rev,1))
   {
-    counts_per_rev[0] = 48.0;
-  }
-  if (!nh.getParam("gear_ratio", gear_ratio,1))
-  {
-    gear_ratio[0] = 75.0/1.0;
-  }
-  if (!nh.getParam("encoder_on_motor_shaft", encoder_on_motor_shaft,1))
-  {
-    encoder_on_motor_shaft[0] = 1;
-  }
-  if (!nh.getParam("wheel_radius", wheel_radius,1))
-  {
-    wheel_radius[0] = 0.120/2.0;
+    counts_per_rev[0] = 200;
   }
 
-  // Compute the meters per count
-  if (encoder_on_motor_shaft[0] == 1)
+  if (!nh.getParam("wheel_radius", wheel_radius,1))
   {
-    meters_per_counts = ((PI * 2 * wheel_radius[0]) / (counts_per_rev[0] * gear_ratio[0]));
+    wheel_radius[0] = 0.200 / 2.0;
   }
-  else
-  {
-    meters_per_counts = ((PI * 2 * wheel_radius[0]) / counts_per_rev[0]);
-  }
-} 
+
+  ctrler.init(LEFT_CLK_PIN, RIGHT_CLK_PIN, LEFT_DIR_PIN, RIGHT_DIR_PIN, wheel_radius[0], counts_per_rev[0], NovaStepperCtrler::CLK_31250HZ);
+}
 
 
 void loop() 
 {
   if ((millis() - last_encoders_time) >= (1000 / encoder_rate[0]))
   { 
-    encoders_msg.left = ctrler.GetEncoder(NovaStepperCtrler::MOTOR_L);
-    encoders_msg.right = ctrler.GetEncoder(NovaStepperCtrler::MOTOR_R);
+    encoders_msg.left = ctrler.getEncoder(NovaStepperCtrler::MOTOR_L);
+    encoders_msg.right = ctrler.getEncoder(NovaStepperCtrler::MOTOR_R);
     encoders_msg.header.stamp = nh.now();
     pub_encoders.publish(&encoders_msg);
     last_encoders_time = millis();
@@ -167,8 +154,8 @@ void loop()
   // Stop motors after a period of no commands
   if((millis() - last_cmd_time) >= (no_cmd_timeout[0] * 1000))
   {
-    ctrler.SetVelocity(NovaStepperCtrler::MOTOR_L, 0.0);
-    ctrler.SetVelocity(NovaStepperCtrler::MOTOR_R, 0.0);
+    ctrler.setVelocity(NovaStepperCtrler::MOTOR_L, 0.0f);
+    ctrler.setVelocity(NovaStepperCtrler::MOTOR_R, 0.0f);
   }
   nh.spinOnce();
 }
@@ -176,8 +163,8 @@ void loop()
 
 void cmdDiffVelCallback( const ros_arduino_msgs::CmdDiffVel& diff_vel_msg) 
 {
-  ctrler.SetVelocity(NovaStepperCtrler::MOTOR_L, diff_vel_msg.left);
-  ctrler.SetVelocity(NovaStepperCtrler::MOTOR_R, diff_vel_msg.right);  
+  ctrler.setVelocity(NovaStepperCtrler::MOTOR_L, diff_vel_msg.left);
+  ctrler.setVelocity(NovaStepperCtrler::MOTOR_R, diff_vel_msg.right);  
   
   last_cmd_time = millis();
 }
