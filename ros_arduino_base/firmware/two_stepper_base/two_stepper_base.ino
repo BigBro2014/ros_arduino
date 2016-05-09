@@ -44,15 +44,13 @@
 // Select your baud rate here
 #define BAUD 115200
 
-// Define motor dir pins here
-#define LEFT_DIR_PIN  6
-#define RIGHT_DIR_PIN 7
 
 // Connect motors:
-// Pin11(OC2A)    -- CLK_L
-// Pin3 (OC2B)    -- CLK_R
-// LEFT_DIR_PIN   -- DIR_L
-// RIGHT_DIR_PIN  -- DIR_R
+#define LEFT_CLK_PIN  2
+#define RIGHT_CLK_PIN 3
+#define LEFT_DIR_PIN  4
+#define RIGHT_DIR_PIN 5
+
 
 /********************************************************************************************
 /                                                 END OF USER CONFIG                        *
@@ -130,15 +128,15 @@ void setup()
 
   if (!nh.getParam("counts_per_rev", counts_per_rev,1))
   {
-    counts_per_rev[0] = 800;
+    counts_per_rev[0] = 200;
   }
 
   if (!nh.getParam("wheel_radius", wheel_radius,1))
   {
-    wheel_radius[0] = 0.100 / 2.0;
+    wheel_radius[0] = 0.200 / 2.0;
   }
 
-  ctrler.init(LEFT_DIR_PIN, RIGHT_DIR_PIN, wheel_radius[0], counts_per_rev[0]);
+  ctrler.init(LEFT_CLK_PIN, RIGHT_CLK_PIN, LEFT_DIR_PIN, RIGHT_DIR_PIN, wheel_radius[0], counts_per_rev[0], NovaStepperCtrler::CLK_31250HZ);
 }
 
 
@@ -156,8 +154,8 @@ void loop()
   // Stop motors after a period of no commands
   if((millis() - last_cmd_time) >= (no_cmd_timeout[0] * 1000))
   {
-    ctrler.setVelocity(NovaStepperCtrler::MOTOR_L, 0.0);
-    ctrler.setVelocity(NovaStepperCtrler::MOTOR_R, 0.0);
+    ctrler.setVelocity(NovaStepperCtrler::MOTOR_L, 0.0f);
+    ctrler.setVelocity(NovaStepperCtrler::MOTOR_R, 0.0f);
   }
   nh.spinOnce();
 }
