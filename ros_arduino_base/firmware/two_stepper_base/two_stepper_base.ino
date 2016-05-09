@@ -136,6 +136,11 @@ void setup()
     wheel_radius[0] = 0.200 / 2.0;
   }
 
+  pinMode(LEFT_CLK_PIN, OUTPUT);
+  pinMode(RIGHT_CLK_PIN, OUTPUT);
+  pinMode(LEFT_DIR_PIN, OUTPUT);
+  pinMode(RIGHT_DIR_PIN, OUTPUT);
+  
   ctrler.init(LEFT_CLK_PIN, RIGHT_CLK_PIN, LEFT_DIR_PIN, RIGHT_DIR_PIN, wheel_radius[0], counts_per_rev[0], NovaStepperCtrler::CLK_31250HZ);
 }
 
